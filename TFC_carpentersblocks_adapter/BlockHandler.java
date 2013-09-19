@@ -14,7 +14,7 @@ public class BlockHandler {
     public static int recipeQuantityStairs = 4;
     public static int recipeQuantityBarrier = 2;
     public static int recipeQuantityGate = 1;
-    public static int recipeQuantityBlock = 5;
+    public static int recipeQuantityBlock = 3;
     public static int recipeQuantityButton = 1;
     public static int recipeQuantityLever = 1;
     public static int recipeQuantityPressurePlate = 1;
@@ -24,17 +24,40 @@ public class BlockHandler {
     public static int recipeQuantityBed = 1;
     public static int recipeQuantityLadder = 4;
     
-    public static void changeBlockRecipe(String blockname,Object[] recipe, int stacksize,boolean isShapedOreRecipe){
+    enum RecipeType{
+    	ObjArray,
+    	ShapedOre,
+    	ShapedTFC
+    }
+    public static void purgeBlockRecipes(String blockname,int stacksize){
+    	Block block=Util.findBlock(blockname);
+    	if(block != null){
+    		ItemStack itemStack=new ItemStack(block, stacksize);
+    		Util.removeRecipes(itemStack);
+    	}
+    }
+    public static void changeBlockRecipe(String blockname,Object[] recipe,int oldstacksize, int newstacksize,RecipeType type){
+    	purgeBlockRecipes(blockname,oldstacksize);
+    	addBlockRecipe(blockname,recipe,newstacksize,type);
+    }
+    public static void addBlockRecipe(String blockname,Object[] recipe,int stacksize,RecipeType type){
 		Block block=Util.findBlock(blockname);
 		if(block != null){
 			ItemStack itemStack=new ItemStack(block, stacksize);
 			ModLogger.log(Level.INFO, "attempting to remove Recipe for "+block.getUnlocalizedName());
-			Util.removeRecipes(itemStack);
-			if(isShapedOreRecipe){
+			
+			switch(type){
+			case ObjArray:
+			default:
+				GameRegistry.addRecipe(itemStack, recipe);
+				break;
+			case ShapedOre:
 				ShapedOreRecipe shapedOreRecipe = new ShapedOreRecipe(itemStack,recipe);
-//				GameRegistry.addRecipe(itemStack, shapedOreRecipe);
-			} else {
-//				GameRegistry.addRecipe(itemStack, recipe);
+				GameRegistry.addRecipe(shapedOreRecipe);
+				break;
+			case ShapedTFC:
+				
+				break;
 			}
 		} else {
 			ModLogger.log(Level.SEVERE,"Could not find block:"+blockname);
@@ -45,38 +68,46 @@ public class BlockHandler {
     {
 		ModLogger.log(Level.INFO, "attempting to adjust Carpenter's Blocks Block Recipes");
 		Block blockCarpentersBlock = Util.findBlock("blockCarpentersBlock");
+		Item TFCplank=Util.findItem("SinglePlank");
+		Block TFChorizSupport = Util.findBlock("WoodSupportH");
+		Block TFCvertSupport = Util.findBlock("WoodSupportV");
 		//Carpenter Block
-		Object[] recipe=new Object[]{"XXX", "XYX", "XXX", 'X', "stickWood", 'Y', "plankWood"};
-		changeBlockRecipe("blockCarpentersBlock",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBlock,true);
+		Object[] recipe;
+		recipe=new Object[]{"XXX", "XYX", "XXX", 'X', new ItemStack(TFC.TFCItems.SinglePlank,1,32767), 'Y', "plankWood"};
+		changeBlockRecipe("blockCarpentersBlock",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBlock,recipeQuantityBlock,RecipeType.ShapedOre);
 		//Slope
-		recipe=new Object[]{"  X", " XY", "XYY", 'X', "stickWood", 'Y', "plankWood"};
-		changeBlockRecipe("blockCarpentersSlope",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantitySlope,true);
+		recipe=new Object[]{"  X", " XY", "XYY", 'X', TFCplank, 'Y', "plankWood"};
+		changeBlockRecipe("blockCarpentersSlope",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantitySlope,recipeQuantitySlope,RecipeType.ShapedOre);
 		//Stairs
 		recipe=new Object[]{"  X", " XX", "XXX", 'X', blockCarpentersBlock};
-		changeBlockRecipe("blockCarpentersStairs",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityStairs,false);
+		changeBlockRecipe("blockCarpentersStairs",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityStairs,recipeQuantityStairs,RecipeType.ObjArray);
 		//Barrier (fence)
-		recipe=new Object[]{"X X", "XXX", 'X', "stickWood"};
-		changeBlockRecipe("blockCarpentersBarrier",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBarrier,true);
+		recipe=new Object[]{"XYX", "XYX", 'X', TFCvertSupport, 'Y',TFChorizSupport};
+		changeBlockRecipe("blockCarpentersBarrier",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBarrier,recipeQuantityBarrier,RecipeType.ShapedOre);
 		//Gate
-		recipe=new Object[]{"XYX", "XYX", 'X', "stickWood", 'Y', blockCarpentersBlock};
-		changeBlockRecipe("blockCarpentersGate",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityGate,true);
-		//Button
-		recipe=new Object[] {"X", 'X', blockCarpentersBlock};
-		changeBlockRecipe("blockCarpentersButton",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityButton,true);
-	    //Lever
-	    recipe=new Object[] {"X", "Y", 'X', "stickWood", 'Y', blockCarpentersBlock};
-	    changeBlockRecipe("blockCarpentersLever",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityLever,true);
-	    //Pressure Plate
-	    recipe=new Object[] {"XX", 'X', blockCarpentersBlock};
-	    changeBlockRecipe("blockCarpentersPressurePlate",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityPressurePlate,false);
+		recipe=new Object[]{"XYX", "XYX", 'X', TFCvertSupport, 'Y', blockCarpentersBlock};
+		changeBlockRecipe("blockCarpentersGate",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityGate,recipeQuantityGate,RecipeType.ShapedOre);
+	    
+
+	    //--Don't Need Changes (at least not yet)
+
 	    //Light Sensor
-	    recipe=new Object[] {"XXX", "YYY", "ZZZ", 'X', Block.glass, 'Y', Item.netherQuartz, 'Z', blockCarpentersBlock};
-	    changeBlockRecipe("blockCarpentersDaylightSensor",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityDaylightSensor,false);
+//	    recipe=new Object[] {"XXX", "YYY", "ZZZ", 'X', Block.glass, 'Y', Item.netherQuartz, 'Z', blockCarpentersBlock};
+//	    changeBlockRecipe("blockCarpentersDaylightSensor",recipe,recipeQuantityDaylightSensor,false);
 	    //Hatch
-	    recipe=new Object[] {"XXX", "XXX", 'X', blockCarpentersBlock};
-	    changeBlockRecipe("blockCarpentersHatch",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityHatch,false);
+//	    recipe=new Object[] {"XXX", "XXX", 'X', blockCarpentersBlock};
+//	    changeBlockRecipe("blockCarpentersHatch",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityHatch,false);
+	    //Lever
+//	    recipe=new Object[] {"X", "Y", 'X', "stickWood", 'Y', blockCarpentersBlock};
+//	    changeBlockRecipe("blockCarpentersLever",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityLever,true);
+		//Button
+//		recipe=new Object[] {"X", 'X', blockCarpentersBlock};
+//		changeBlockRecipe("blockCarpentersButton",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityButton,true);
+	    //Pressure Plate
+//	    recipe=new Object[] {"XX", 'X', blockCarpentersBlock};
+//	    changeBlockRecipe("blockCarpentersPressurePlate",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityPressurePlate,false);
 	    //Ladder
-	    recipe=new Object[] {"X X", "XXX", "X X", 'X', blockCarpentersBlock};
-	    changeBlockRecipe("blockCarpentersLadder",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityLadder,false);
+//	    recipe=new Object[] {"X X", "XXX", "X X", 'X', blockCarpentersBlock};
+//	    changeBlockRecipe("blockCarpentersLadder",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityLadder,false);
     }
 }
