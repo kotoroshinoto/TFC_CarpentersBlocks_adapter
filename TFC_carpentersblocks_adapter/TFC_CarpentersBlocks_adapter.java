@@ -1,6 +1,8 @@
 package TFC_carpentersblocks_adapter;
 
 //import TFC.Handlers.PacketHandler;
+import java.util.logging.Level;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -27,7 +29,7 @@ public class TFC_CarpentersBlocks_adapter {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		System.out.println("Pre-Initializing Carpenter's Blocks adapter for TFC");
+		ModLogger.log(Level.INFO, "Pre-Initializing Carpenter's Blocks adapter for TFC");
 		instance = this;
 //		FeatureHandler.initProps(event);
 //		BlockHandler.initBlocks(event);
@@ -42,9 +44,12 @@ public class TFC_CarpentersBlocks_adapter {
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		System.out.println("Initializing Carpenter's Blocks adapter for TFC");
+//		cpw.mods.fml.common.registry.
+//		Util.listItems();
+//		Util.listBlocks();
+		ModLogger.log(Level.INFO, "Initializing Carpenter's Blocks adapter for TFC");
 //		FeatureHandler.registerTileEntities();
-		BlockHandler.changeBlockRecipes();
-		ItemHandler.changeItemRecipes();
+		TFC_carpentersblocks_adapter.BlockHandler.changeBlockRecipes();
+		TFC_carpentersblocks_adapter.ItemHandler.changeItemRecipes();
 	}
 }

@@ -1,3 +1,7 @@
 .metadata
 .project
 .classpath
+server
+server/*
+bin
+bin/*
