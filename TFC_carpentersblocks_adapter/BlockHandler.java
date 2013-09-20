@@ -73,10 +73,10 @@ public class BlockHandler {
 		Block TFCvertSupport = Util.findBlock("WoodSupportV");
 		//Carpenter Block
 		Object[] recipe;
-		recipe=new Object[]{"XXX", "XYX", "XXX", 'X', new ItemStack(TFC.TFCItems.SinglePlank,1,32767), 'Y', "plankWood"};
+		recipe=new Object[]{"XXX", "XYX", "XXX", 'X', new ItemStack(TFCplank,1,32767), 'Y', "plankWood"};
 		changeBlockRecipe("blockCarpentersBlock",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBlock,recipeQuantityBlock,RecipeType.ShapedOre);
 		//Slope
-		recipe=new Object[]{"  X", " XY", "XYY", 'X', TFCplank, 'Y', "plankWood"};
+		recipe=new Object[]{"  X", " XY", "XYY", 'X', new ItemStack(TFCplank,1,32767), 'Y', "plankWood"};
 		changeBlockRecipe("blockCarpentersSlope",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantitySlope,recipeQuantitySlope,RecipeType.ShapedOre);
 		//Stairs
 		recipe=new Object[]{"  X", " XX", "XXX", 'X', blockCarpentersBlock};
