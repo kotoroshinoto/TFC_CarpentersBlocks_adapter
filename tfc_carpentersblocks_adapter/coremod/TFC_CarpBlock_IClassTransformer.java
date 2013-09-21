@@ -17,6 +17,7 @@ import scala.tools.asm.tree.FieldInsnNode;
 import scala.tools.asm.tree.AbstractInsnNode;
 import tfc_carpentersblocks_adapter.mod.util.ModLogger;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.world.World;
 
@@ -32,12 +33,156 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		
 		if(arg0.equals("carpentersblocks.block.BlockBase")){
 			ModLogger.log(Level.INFO, "identified Blockbase class for modification ");
-			return patchClassASM(arg0,arg2);
+			return patchBlockBase(arg0,arg2);
+		}
+		if (arg0.equals("carpentersblocks.util.BlockProperties")){
+			ModLogger.log(Level.INFO, "identified BlockProperties class for modification ");
+			return patchBlockProperties(arg0,arg2);
+		}
+		if(arg0.equals("carpentersblocks.util.handler.OverlayHandler")){
+			ModLogger.log(Level.INFO, "identified OverlayHandler class for modification ");
+			return patchOverlayHandler(arg0,arg2);
 		}
 		return arg2;
 	}
+	private byte[] patchBlockProperties(String name, byte[] bytes){
+		/*
+Change this:
+{
+mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "isOverlay", "(Lnet/minecraft/item/ItemStack;)Z", null, null);
+mv.visitCode();
+Label l0 = new Label();
+mv.visitLabel(l0);
+mv.visitLineNumber(302, l0);
+mv.visitFieldInsn(GETSTATIC, "carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;");
+mv.visitVarInsn(ALOAD, 0);
+mv.visitFieldInsn(GETFIELD, "net/minecraft/item/ItemStack", "itemID", "I");
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "containsValue", "(Ljava/lang/Object;)Z");
+mv.visitInsn(IRETURN);
+Label l1 = new Label();
+mv.visitLabel(l1);
+mv.visitLocalVariable("itemStack", "Lnet/minecraft/item/ItemStack;", null, l0, l1, 0);
+mv.visitMaxs(2, 1);
+mv.visitEnd();
+}
 
-	private byte[] patchClassASM(String name, byte[] bytes) {
+To this:
+{
+mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "isOverlay", "(Lnet/minecraft/item/ItemStack;)Z", null, null);
+mv.visitCode();
+Label l0 = new Label();
+mv.visitLabel(l0);
+mv.visitLineNumber(302, l0);
+mv.visitVarInsn(ALOAD, 0);
+mv.visitFieldInsn(GETFIELD, "net/minecraft/item/ItemStack", "itemID", "I");
+mv.visitFieldInsn(GETSTATIC, "carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;");
+mv.visitInsn(ICONST_1);
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+Label l1 = new Label();
+mv.visitJumpInsn(IF_ICMPNE, l1);
+mv.visitVarInsn(ALOAD, 0);
+mv.visitMethodInsn(INVOKEVIRTUAL, "net/minecraft/item/ItemStack", "getItemDamage", "()I");
+mv.visitInsn(ICONST_1);
+mv.visitJumpInsn(IF_ICMPEQ, l1);
+Label l2 = new Label();
+mv.visitLabel(l2);
+mv.visitLineNumber(303, l2);
+mv.visitInsn(ICONST_0);
+mv.visitInsn(IRETURN);
+mv.visitLabel(l1);
+mv.visitLineNumber(304, l1);
+mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+mv.visitFieldInsn(GETSTATIC, "carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;");
+mv.visitVarInsn(ALOAD, 0);
+mv.visitFieldInsn(GETFIELD, "net/minecraft/item/ItemStack", "itemID", "I");
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "containsValue", "(Ljava/lang/Object;)Z");
+mv.visitInsn(IRETURN);
+Label l3 = new Label();
+mv.visitLabel(l3);
+mv.visitLocalVariable("itemStack", "Lnet/minecraft/item/ItemStack;", null, l0, l3, 0);
+mv.visitMaxs(3, 1);
+mv.visitEnd();
+}
+		 */
+		return bytes;
+	}
+	private byte[] patchOverlayHandler(String name, byte[] bytes) {
+		/*
+
+public static ItemStack getItemStack(int overlay)
+change this:
+{
+mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "getItemStack", "(I)Lnet/minecraft/item/ItemStack;", null, null);
+mv.visitCode();
+Label l0 = new Label();
+mv.visitLabel(l0);
+mv.visitLineNumber(68, l0);
+mv.visitTypeInsn(NEW, "net/minecraft/item/ItemStack");
+mv.visitInsn(DUP);
+mv.visitFieldInsn(GETSTATIC, "carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;");
+mv.visitVarInsn(ILOAD, 0);
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+mv.visitInsn(ICONST_1);
+mv.visitInsn(ICONST_0);
+mv.visitMethodInsn(INVOKESPECIAL, "net/minecraft/item/ItemStack", "<init>", "(III)V");
+mv.visitInsn(ARETURN);
+Label l1 = new Label();
+mv.visitLabel(l1);
+mv.visitLocalVariable("overlay", "I", null, l0, l1, 0);
+mv.visitMaxs(5, 1);
+mv.visitEnd();
+}
+
+
+to this:
+{
+mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "getItemStack", "(I)Lnet/minecraft/item/ItemStack;", null, null);
+mv.visitCode();
+Label l0 = new Label();
+mv.visitLabel(l0);
+mv.visitLineNumber(68, l0);
+mv.visitTypeInsn(NEW, "net/minecraft/item/ItemStack");
+mv.visitInsn(DUP);
+mv.visitFieldInsn(GETSTATIC, "carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;");
+mv.visitVarInsn(ILOAD, 0);
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+mv.visitInsn(ICONST_1);
+mv.visitVarInsn(ILOAD, 0);
+mv.visitInsn(ICONST_1);
+Label l1 = new Label();
+mv.visitJumpInsn(IF_ICMPNE, l1);
+mv.visitInsn(ICONST_1);
+Label l2 = new Label();
+mv.visitJumpInsn(GOTO, l2);
+mv.visitLabel(l1);
+mv.visitFrame(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 4, new Object[] {l0, l0, Opcodes.INTEGER, Opcodes.INTEGER});
+mv.visitInsn(ICONST_0);
+mv.visitLabel(l2);
+mv.visitFrame(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 5, new Object[] {l0, l0, Opcodes.INTEGER, Opcodes.INTEGER, Opcodes.INTEGER});
+mv.visitMethodInsn(INVOKESPECIAL, "net/minecraft/item/ItemStack", "<init>", "(III)V");
+mv.visitInsn(ARETURN);
+Label l3 = new Label();
+mv.visitLabel(l3);
+mv.visitLocalVariable("overlay", "I", null, l0, l3, 0);
+mv.visitMaxs(6, 1);
+mv.visitEnd();
+}
+
+		 */
+		return bytes;
+	}
+	private byte[] patchBlockBase(String name, byte[] bytes) {
 		// TODO Auto-generated method stub
 		String targetMethodName= "onBlockActivated";
 		String targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";

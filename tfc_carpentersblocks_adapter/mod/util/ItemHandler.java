@@ -5,7 +5,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 
+import java.util.HashMap;
 import java.util.logging.Level;
+
+import carpentersblocks.util.handler.OverlayHandler;
 
 public class ItemHandler {
 	public static void changeItemRecipe(String itemname,Object[] recipe, int oldstacksize, int newstacksize){
@@ -40,4 +43,13 @@ public class ItemHandler {
 		recipe=new Object[] {"XXX", "YYY", 'X', TFCwoolCloth, 'Y', blockCarpentersBlock};
 		changeItemRecipe("itemCarpentersBed",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBed,tfc_carpentersblocks_adapter.mod.util.BlockHandler.recipeQuantityBed);
     }
+	@SuppressWarnings("unchecked")
+	public static void registerOverlayItems(){
+		@SuppressWarnings("rawtypes")
+		HashMap overlayMap=(HashMap) OverlayHandler.overlayMap;
+		ItemStack grassitemstack=new ItemStack(Block.tallGrass,1,1);
+		overlayMap.put(1, grassitemstack.itemID);
+		Item strawItem=Util.findItem("Straw");
+		overlayMap.put(5, strawItem.itemID);
+	}
 }

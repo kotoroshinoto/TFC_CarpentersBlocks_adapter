@@ -67,5 +67,6 @@ public class TFC_CarpentersBlocks_adapter extends DummyModContainer{
 //		FeatureHandler.registerTileEntities();
 		tfc_carpentersblocks_adapter.mod.util.BlockHandler.changeBlockRecipes();
 		tfc_carpentersblocks_adapter.mod.util.ItemHandler.changeItemRecipes();
+		tfc_carpentersblocks_adapter.mod.util.ItemHandler.registerOverlayItems();
 	}
 }
