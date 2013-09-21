@@ -1,4 +1,4 @@
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter.coremod.util;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,7 +8,7 @@ import cpw.mods.fml.common.FMLLog;
 public class ModLogger
 {
 
-	private static Logger logger = Logger.getLogger("TFC_CarpentersBlocks_adapter");
+	private static Logger logger = Logger.getLogger("TFC_CarpentersBlocks_adapter_coremod");
 
 	public static void init()
 	{

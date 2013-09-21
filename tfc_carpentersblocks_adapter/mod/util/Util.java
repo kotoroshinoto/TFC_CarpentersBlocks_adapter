@@ -1,8 +1,10 @@
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter.mod.util;
 
 import java.util.List;
+
 import net.minecraft.item.Item;
 import net.minecraft.block.Block;
+
 import java.util.logging.Level;
 
 import net.minecraft.item.ItemStack;

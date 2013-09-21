@@ -5,4 +5,4 @@
  * @author mgooch
  *
  */
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter;

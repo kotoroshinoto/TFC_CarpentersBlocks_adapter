@@ -1,9 +1,10 @@
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter.mod.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
+
 import java.util.logging.Level;
 
 public class ItemHandler {
@@ -37,6 +38,6 @@ public class ItemHandler {
 //		changeItemRecipe("itemCarpentersDoor",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityDoor);
 		//BED
 		recipe=new Object[] {"XXX", "YYY", 'X', TFCwoolCloth, 'Y', blockCarpentersBlock};
-		changeItemRecipe("itemCarpentersBed",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBed,TFC_carpentersblocks_adapter.BlockHandler.recipeQuantityBed);
+		changeItemRecipe("itemCarpentersBed",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBed,tfc_carpentersblocks_adapter.mod.util.BlockHandler.recipeQuantityBed);
     }
 }

@@ -1,11 +1,15 @@
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter.mod;
 
 //import TFC.Handlers.PacketHandler;
+import java.util.Arrays;
 import java.util.logging.Level;
-
+import tfc_carpentersblocks_adapter.Reference;
+import tfc_carpentersblocks_adapter.mod.util.ModLogger;
+import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
@@ -13,13 +17,25 @@ import cpw.mods.fml.common.network.NetworkMod;
 @Mod(modid = Reference.ModID, name = Reference.ModName, version = Reference.ModVersion, dependencies = Reference.ModDependencies)
 //channels = { Reference.ModChannel }, 
 @NetworkMod( clientSideRequired = true, serverSideRequired = true)
-public class TFC_CarpentersBlocks_adapter {
+public class TFC_CarpentersBlocks_adapter extends DummyModContainer{
 	
 	@Instance("TFC_CarpentersBlocks_adapter")
 	public static TFC_CarpentersBlocks_adapter instance;
 	
 	public TFC_CarpentersBlocks_adapter(){
-		
+		super(new ModMetadata());
+		ModMetadata meta = getMetadata();
+		meta.modId = Reference.ModID;
+		meta.name = Reference.ModName;
+		meta.version = Reference.ModVersion;
+		meta.credits = "By KotoroShinoto";
+		meta.authorList = Arrays.asList("KotoroShinoto");
+		meta.description = Reference.ModDescription;
+		meta.url = Reference.ModURL;
+		meta.updateUrl = "";
+		meta.screenshots = new String[0];
+		meta.logoFile = "";
+
 	}
 //	@SidedProxy(clientSide = "carpentersblocks.proxy.ClientProxy", serverSide = "carpentersblocks.proxy.CommonProxy")
 //	public static CommonProxy proxy;
@@ -49,7 +65,7 @@ public class TFC_CarpentersBlocks_adapter {
 //		Util.listBlocks();
 		ModLogger.log(Level.INFO, "Initializing Carpenter's Blocks adapter for TFC");
 //		FeatureHandler.registerTileEntities();
-		TFC_carpentersblocks_adapter.BlockHandler.changeBlockRecipes();
-		TFC_carpentersblocks_adapter.ItemHandler.changeItemRecipes();
+		tfc_carpentersblocks_adapter.mod.util.BlockHandler.changeBlockRecipes();
+		tfc_carpentersblocks_adapter.mod.util.ItemHandler.changeItemRecipes();
 	}
 }

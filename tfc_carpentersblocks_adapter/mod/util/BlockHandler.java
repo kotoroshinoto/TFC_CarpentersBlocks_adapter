@@ -1,4 +1,4 @@
-package TFC_carpentersblocks_adapter;
+package tfc_carpentersblocks_adapter.mod.util;
 
 import java.util.logging.Level;
 
