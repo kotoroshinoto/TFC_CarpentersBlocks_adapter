@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 FMLCorePlugin: tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin
+FMLCorePluginContainsFMLMod: true
 Created-By: 1.7.0 (Oracle Corporation)
