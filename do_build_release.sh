@@ -1,7 +1,7 @@
 #!/bin/bash
 BUILD_FORGE=/forge-build
 SOURCEDIR=/mc_mods/TFC_CarpentersBlocks_adapter
-BINDIR=/mc_mods
+BINDIR=$SOURCEDIR/build
 #./do_build_release.sh 0.0.3a 0.77.15 1.87 1.6.2
 MOD_V="$1"
 TFC_V="$2"
