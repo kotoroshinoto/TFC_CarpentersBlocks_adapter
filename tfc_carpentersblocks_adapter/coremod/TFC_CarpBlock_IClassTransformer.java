@@ -1,20 +1,12 @@
 package tfc_carpentersblocks_adapter.coremod;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
-import scala.tools.asm.ClassVisitor;
-import scala.tools.asm.ClassReader;
-import scala.tools.asm.ClassWriter;
-import scala.tools.asm.Opcodes;
-import scala.tools.asm.tree.ClassNode;
-import scala.tools.asm.tree.InsnList;
-import scala.tools.asm.tree.JumpInsnNode;
-import scala.tools.asm.tree.LabelNode;
-import scala.tools.asm.tree.MethodNode;
-import scala.tools.asm.tree.MethodInsnNode;
-import scala.tools.asm.tree.FieldInsnNode;
-import scala.tools.asm.tree.AbstractInsnNode;
+import scala.tools.asm.*;
+import scala.tools.asm.tree.*;
 import tfc_carpentersblocks_adapter.mod.util.ModLogger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -30,7 +22,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 	@Override
 	public byte[] transform(String arg0, String arg1, byte[] arg2) {
 		// TODO Auto-generated method stub
-		
+
 		if(arg0.equals("carpentersblocks.block.BlockBase")){
 			ModLogger.log(Level.INFO, "identified Blockbase class for modification ");
 			return patchBlockBase(arg0,arg2);
@@ -109,7 +101,136 @@ mv.visitMaxs(3, 1);
 mv.visitEnd();
 }
 		 */
-		return bytes;
+		// TODO Auto-generated method stub
+		String targetMethodName= "isOverlay";
+		String targetMethodDesc="(Lnet/minecraft/item/ItemStack;)Z";
+		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//set up ASM class manipulation stuff. Consult the ASM docs for details
+		ClassNode classNode = new ClassNode();
+		ClassReader classReader = new ClassReader(bytes);
+		classReader.accept(classNode, 0);
+
+		Iterator<MethodNode> methods = classNode.methods.iterator();
+		ModLogger.log(Level.INFO, "looking for "+targetMethodName+" "+targetMethodDesc);
+		while(methods.hasNext())
+		{
+			MethodNode m = methods.next();
+			int targetInsn_index = -1;
+			//public boolean onBlockActivated
+			//(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ)
+			//(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z
+			String methodName;
+			String methodDesc;
+			if (needDeobf){
+				methodName=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(name, m.name, m.desc);
+				methodDesc=FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(m.desc);
+			} else {
+				methodName=m.name;
+				methodDesc=m.desc;
+			}
+			ModLogger.log(Level.INFO, "checking "+methodName+" "+methodDesc);
+			if (targetMethodName.equals(methodName) && targetMethodDesc.equals(methodDesc))
+			{
+				ModLogger.log(Level.INFO, "target method found");
+				AbstractInsnNode currentNode = null;
+//				this.logMethodNodes(m);
+				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+
+				int index = -1;
+				int targetInstructionType=AbstractInsnNode.FIELD_INSN;
+				int targetOpcodeType=Opcodes.GETSTATIC;
+				String targetOwner="carpentersblocks/util/handler/OverlayHandler";
+				String targetName="overlayMap";
+				String targetDesc="Ljava/util/Map;";
+				ModLogger.log(Level.INFO, "looking for: Type("+AbstractInsnNode.FIELD_INSN+") Opcode("+Opcodes.GETSTATIC+")"+targetOwner+" "+targetName+" "+targetDesc);
+				ArrayList<LabelNode> lbls=new ArrayList<LabelNode>();
+				while (iter.hasNext())
+				{
+					index++;
+					currentNode = iter.next();
+					ModLogger.log(Level.INFO, "Node instruction type: "+currentNode.getType()+" opcode: "+currentNode.getOpcode());
+					if (currentNode.getType() == AbstractInsnNode.LABEL){
+						lbls.add((LabelNode)currentNode);
+					}
+					if (currentNode.getType() == targetInstructionType && currentNode.getOpcode() == targetOpcodeType)
+					{
+						FieldInsnNode fieldnode=(FieldInsnNode)currentNode;
+						String nodeOwner;
+						String nodeName;
+						String nodeDesc;
+						if (needDeobf){
+							nodeOwner=FMLDeobfuscatingRemapper.INSTANCE.mapType(fieldnode.owner);
+							nodeName=FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(fieldnode.owner, fieldnode.name, fieldnode.desc);
+							nodeDesc=FMLDeobfuscatingRemapper.INSTANCE.mapDesc(fieldnode.desc);
+						} else {
+							nodeOwner=fieldnode.owner;
+							nodeName=fieldnode.name;
+							nodeDesc=fieldnode.desc;
+						}
+
+						ModLogger.log(Level.INFO, "checking: "+nodeOwner+" "+nodeName+" "+nodeDesc);
+						if(nodeOwner.equals(targetOwner) && nodeName.equals(targetName) && nodeDesc.equals(targetDesc) ){
+							ModLogger.log(Level.INFO, "target bytecode instruction found");
+							targetInsn_index=index;
+							break;
+						}
+					}
+				}
+				//				ArrayList<AbstractInsnNode> removeThese=new ArrayList<AbstractInsnNode>();
+				InsnList addBefore = new InsnList();
+				InsnList addAfter = new InsnList();
+				AbstractInsnNode beforeTarget=m.instructions.get(targetInsn_index-1);
+				AbstractInsnNode afterTarget=m.instructions.get(targetInsn_index+5);
+				//				removeThese.add(m.instructions.get(targetInsn_index+6));
+				//				removeThese.add(m.instructions.get(targetInsn_index+7));
+				//				removeThese.add(m.instructions.get(targetInsn_index+8));
+				//				for(AbstractInsnNode n:removeThese){
+				//					m.instructions.remove(n);
+				//				}
+				m.instructions.remove(m.instructions.get(targetInsn_index+6));
+				if (needDeobf){
+				}else{
+					addBefore.add(new VarInsnNode(Opcodes.ALOAD,0));
+					addBefore.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/item/ItemStack", "itemID", "I"));
+					addBefore.add(new FieldInsnNode(Opcodes.GETSTATIC,"carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;"));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;"));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;"));
+					addBefore.add(new TypeInsnNode(Opcodes.CHECKCAST, "java/lang/Integer"));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I"));
+					lbls.add(new LabelNode(new Label()));
+					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE, lbls.get(1)));
+					addBefore.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "net/minecraft/item/ItemStack", "getItemDamage", "()I"));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPEQ, lbls.get(1)));
+					lbls.add(new LabelNode(new Label()));
+					addBefore.add(lbls.get(2));
+					addBefore.add(new LineNumberNode(303, lbls.get(2)));
+					addBefore.add(new InsnNode(Opcodes.ICONST_0));
+					addBefore.add(new InsnNode(Opcodes.IRETURN));
+					addBefore.add(lbls.get(1));
+					addBefore.add(new LineNumberNode(304, lbls.get(1)));
+					addBefore.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+					lbls.add(new LabelNode(new Label()));
+					addAfter.add(lbls.get(3));
+					m.instructions.insert(beforeTarget, addBefore);
+					m.instructions.insert(afterTarget, addAfter);
+					m.localVariables.clear();
+					m.localVariables.add(new LocalVariableNode("itemStack", "Lnet/minecraft/item/ItemStack;", null, lbls.get(0), lbls.get(3), 0));
+					m.maxStack=3;
+					//					new MaxsNode(3, 1);
+
+				}
+//				this.logMethodNodes(m);
+				break;
+			}
+		}
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+		classNode.accept(writer);
+		return writer.toByteArray();
+
+		//		return bytes;
 	}
 	private byte[] patchOverlayHandler(String name, byte[] bytes) {
 		/*
@@ -180,27 +301,24 @@ mv.visitEnd();
 }
 
 		 */
-		return bytes;
-	}
-	private byte[] patchBlockBase(String name, byte[] bytes) {
 		// TODO Auto-generated method stub
-		String targetMethodName= "onBlockActivated";
-		String targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		String targetMethodName= "getItemStack";
+		String targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
 		classReader.accept(classNode, 0);
-		
+
 		Iterator<MethodNode> methods = classNode.methods.iterator();
 		ModLogger.log(Level.INFO, "looking for "+targetMethodName+" "+targetMethodDesc);
 		while(methods.hasNext())
 		{
 			MethodNode m = methods.next();
-			int enableDyeColors_index = -1;
-//public boolean onBlockActivated
-//(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ)
-//(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z
+			int targetInsn_index = -1;
+			//public boolean onBlockActivated
+			//(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ)
+			//(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z
 			String methodName;
 			String methodDesc;
 			if (needDeobf){
@@ -215,7 +333,124 @@ mv.visitEnd();
 			{
 				ModLogger.log(Level.INFO, "target method found");
 				AbstractInsnNode currentNode = null;
-				
+				this.logMethodNodes(m);
+				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+
+				int index = -1;
+				int targetInstructionType=AbstractInsnNode.METHOD_INSN;
+				int targetOpcodeType=Opcodes.INVOKESPECIAL;
+				String targetOwner="net/minecraft/item/ItemStack";
+				String targetName="<init>";
+				String targetDesc="(III)V";
+				ModLogger.log(Level.INFO, "looking for: Type("+AbstractInsnNode.FIELD_INSN+") Opcode("+Opcodes.GETSTATIC+")"+targetOwner+" "+targetName+" "+targetDesc);
+				ArrayList<LabelNode> lbls=new ArrayList<LabelNode>();
+				while (iter.hasNext())
+				{
+					index++;
+					currentNode = iter.next();
+					ModLogger.log(Level.INFO, "Node instruction type: "+currentNode.getType()+" opcode: "+currentNode.getOpcode());
+					if (currentNode.getType() == AbstractInsnNode.LABEL){
+						lbls.add((LabelNode)currentNode);
+					}
+					if (currentNode.getType() == targetInstructionType && currentNode.getOpcode() == targetOpcodeType)
+					{
+						MethodInsnNode fieldnode=(MethodInsnNode)currentNode;
+						String nodeOwner;
+						String nodeName;
+						String nodeDesc;
+						if (needDeobf){
+							nodeOwner=FMLDeobfuscatingRemapper.INSTANCE.mapType(fieldnode.owner);
+							nodeName=FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(fieldnode.owner, fieldnode.name, fieldnode.desc);
+							nodeDesc=FMLDeobfuscatingRemapper.INSTANCE.mapDesc(fieldnode.desc);
+						} else {
+							nodeOwner=fieldnode.owner;
+							nodeName=fieldnode.name;
+							nodeDesc=fieldnode.desc;
+						}
+
+						ModLogger.log(Level.INFO, "checking: "+nodeOwner+" "+nodeName+" "+nodeDesc);
+						if(nodeOwner.equals(targetOwner) && nodeName.equals(targetName) && nodeDesc.equals(targetDesc) ){
+							ModLogger.log(Level.INFO, "target bytecode instruction found");
+							targetInsn_index=index;
+							break;
+						}
+					}
+				}
+				//						ArrayList<AbstractInsnNode> removeThese=new ArrayList<AbstractInsnNode>();
+				InsnList addBefore = new InsnList();
+				InsnList addAfter = new InsnList();
+				AbstractInsnNode targetnode=m.instructions.get(targetInsn_index-1);
+				//						removeThese.add(m.instructions.get(targetInsn_index+6));
+				//						removeThese.add(m.instructions.get(targetInsn_index+7));
+				//						removeThese.add(m.instructions.get(targetInsn_index+8));
+				//						for(AbstractInsnNode n:removeThese){
+				//							m.instructions.remove(n);
+				//						}
+				m.instructions.remove(m.instructions.get(targetInsn_index+2));
+				if (needDeobf){
+				}else{
+					addBefore.add(new VarInsnNode(Opcodes.ILOAD, 0));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					lbls.add(new LabelNode());
+					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE,lbls.get(1)));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					lbls.add(new LabelNode());
+					addBefore.add(new JumpInsnNode(Opcodes.GOTO, lbls.get(2)));
+					addBefore.add(lbls.get(1));
+					addBefore.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 4, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER}));
+					addAfter.add(lbls.get(2));
+					addAfter.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 5, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER, Opcodes.INTEGER}));
+					lbls.add(new LabelNode());
+					m.instructions.insert(targetnode, addAfter);
+					m.instructions.insertBefore(targetnode, addBefore);
+					m.localVariables.clear();
+					m.localVariables.add(new LocalVariableNode("overlay", "I", null, lbls.get(0), lbls.get(3), 0));
+					m.maxStack=6;
+					//							new MaxsNode(3, 1);
+
+				}
+				this.logMethodNodes(m);
+				break;
+			}
+		}
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+		classNode.accept(writer);
+		return writer.toByteArray();
+	}
+	private byte[] patchBlockBase(String name, byte[] bytes) {
+		// TODO Auto-generated method stub
+		String targetMethodName= "onBlockActivated";
+		String targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//set up ASM class manipulation stuff. Consult the ASM docs for details
+		ClassNode classNode = new ClassNode();
+		ClassReader classReader = new ClassReader(bytes);
+		classReader.accept(classNode, 0);
+
+		Iterator<MethodNode> methods = classNode.methods.iterator();
+		ModLogger.log(Level.INFO, "looking for "+targetMethodName+" "+targetMethodDesc);
+		while(methods.hasNext())
+		{
+			MethodNode m = methods.next();
+			int enableDyeColors_index = -1;
+			//public boolean onBlockActivated
+			//(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ)
+			//(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z
+			String methodName;
+			String methodDesc;
+			if (needDeobf){
+				methodName=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(name, m.name, m.desc);
+				methodDesc=FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(m.desc);
+			} else {
+				methodName=m.name;
+				methodDesc=m.desc;
+			}
+			ModLogger.log(Level.INFO, "checking "+methodName+" "+methodDesc);
+			if (targetMethodName.equals(methodName) && targetMethodDesc.equals(methodDesc))
+			{
+				ModLogger.log(Level.INFO, "target method found");
+				AbstractInsnNode currentNode = null;
+
 				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
 
 				int index = -1;
@@ -276,4 +511,99 @@ mv.visitEnd();
 		return writer.toByteArray();
 	}
 
+	private void logMethodNodes(MethodNode m) {
+		ModLogger.log(Level.INFO, "logging nodes for method "+m.name);
+		Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+		AbstractInsnNode currentNode = null;
+		int count=0;
+		ArrayList<LabelNode> lbls= new ArrayList<LabelNode>();
+		while (iter.hasNext()) {
+			count++;
+			currentNode = iter.next();
+			switch (currentNode.getType()) {
+			case AbstractInsnNode.LABEL: {
+				LabelNode n = (LabelNode) currentNode;
+				lbls.add(n);
+				ModLogger.log(Level.INFO, "LabelNode l"+(lbls.size()-1));
+				break;
+			}
+			case AbstractInsnNode.LINE: {
+				LineNumberNode n = (LineNumberNode) currentNode;
+				ModLogger.log(Level.INFO, "line "+n.line + " l"+ lbls.indexOf(n.start));
+				break;
+			}
+			case AbstractInsnNode.FIELD_INSN: {
+				FieldInsnNode n = (FieldInsnNode) currentNode;
+				ModLogger.log(Level.INFO, "FIELD "+getOpcodeName(n.getOpcode())+" "+n.owner+" "+n.name+" "+n.desc);
+				break;
+			}
+			case AbstractInsnNode.VAR_INSN: {
+				VarInsnNode n = (VarInsnNode) currentNode;
+				ModLogger.log(Level.INFO, "VAR "+ getOpcodeName(n.getOpcode())+" "+n.var);
+				break;
+			}
+			case AbstractInsnNode.METHOD_INSN: {
+				MethodInsnNode n = (MethodInsnNode) currentNode;
+				ModLogger.log(Level.INFO, "METHOD "+getOpcodeName(n.getOpcode())+" "+n.owner+" "+n.name+" "+n.desc);
+				break;
+			}
+			case AbstractInsnNode.INSN: {
+				InsnNode n = (InsnNode) currentNode;
+				ModLogger.log(Level.INFO, "INSN "+ getOpcodeName(n.getOpcode()));
+				break;
+			}
+			case AbstractInsnNode.TYPE_INSN:{
+				TypeInsnNode n = (TypeInsnNode) currentNode;
+				ModLogger.log(Level.INFO, "TYPEINSN "+ getOpcodeName(n.getOpcode())+" "+n.desc);
+				break;
+			}
+			case AbstractInsnNode.JUMP_INSN:{
+				JumpInsnNode n = (JumpInsnNode) currentNode;
+				ModLogger.log(Level.INFO, "JUMPINSN "+ getOpcodeName(n.getOpcode())+" l"+ lbls.indexOf(n.label));
+				break;
+			}
+			case AbstractInsnNode.FRAME:{
+				FrameNode n = (FrameNode) currentNode;
+				int localsize=0;
+				int stacksize=0;
+				if(n.local != null){
+					localsize=n.local.size();
+				}
+				if(n.stack != null){
+					stacksize=n.stack.size();
+				}
+				ModLogger.log(Level.INFO,"FRAME "+getOpcodeName(n.getOpcode())+" "+localsize+" - "+stacksize+" - ");
+				break;
+			}
+			default: {
+				ModLogger.log(Level.INFO, currentNode.toString());
+				break;
+			}
+			}
+		}
+		ModLogger.log(Level.INFO, "logged "+count+" nodes");
+	}
+	private String getOpcodeName(int code){
+		switch(code){
+		case Opcodes.ALOAD: return "ALOAD";
+		case Opcodes.ARETURN: return "ARETURN";
+		case Opcodes.GETSTATIC: return "GETSTATIC";
+		case Opcodes.GETFIELD: return "GETFIELD";
+		case Opcodes.INVOKESTATIC: return "INVOKESTATIC";
+		case Opcodes.INVOKEINTERFACE: return "INVOKEINTERFACE";
+		case Opcodes.INVOKEVIRTUAL: return "INVOKEVIRTUAL";
+		case Opcodes.INVOKESPECIAL: return "INVOKESPECIAL";
+		case Opcodes.IRETURN: return "IRETURN";
+		case Opcodes.ICONST_1: return "ICONST_1";
+		case Opcodes.CHECKCAST: return "CHECKCAST";
+		case Opcodes.F_SAME: return "F_SAME";
+		case Opcodes.IF_ICMPEQ: return "IF_ICMPEQ";
+		case Opcodes.IF_ICMPNE: return "IF_ICMPNE";
+		case Opcodes.NEW: return "NEW";
+		case Opcodes.DUP: return "DUP";
+		case Opcodes.ILOAD: return "ILOAD";
+		case Opcodes.GOTO: return "GOTO";
+		default: return ""+code;
+		}
+	}
 }
