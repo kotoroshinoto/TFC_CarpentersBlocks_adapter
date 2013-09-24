@@ -189,6 +189,35 @@ mv.visitEnd();
 				//				}
 				m.instructions.remove(m.instructions.get(targetInsn_index+6));
 				if (needDeobf){
+					addBefore.add(new VarInsnNode(Opcodes.ALOAD,0));
+					addBefore.add(new FieldInsnNode(Opcodes.GETFIELD, "yd", "field_77993_c", "I"));
+					addBefore.add(new FieldInsnNode(Opcodes.GETSTATIC,"carpentersblocks/util/handler/OverlayHandler", "overlayMap", "Ljava/util/Map;"));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;"));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;"));
+					addBefore.add(new TypeInsnNode(Opcodes.CHECKCAST, "java/lang/Integer"));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I"));
+					lbls.add(new LabelNode(new Label()));
+					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE, lbls.get(1)));
+					addBefore.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					addBefore.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "yd", "func_77960_j", "()I"));
+					addBefore.add(new InsnNode(Opcodes.ICONST_1));
+					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPEQ, lbls.get(1)));
+					lbls.add(new LabelNode(new Label()));
+					addBefore.add(lbls.get(2));
+					addBefore.add(new LineNumberNode(303, lbls.get(2)));
+					addBefore.add(new InsnNode(Opcodes.ICONST_0));
+					addBefore.add(new InsnNode(Opcodes.IRETURN));
+					addBefore.add(lbls.get(1));
+					addBefore.add(new LineNumberNode(304, lbls.get(1)));
+					addBefore.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+					lbls.add(new LabelNode(new Label()));
+					addAfter.add(lbls.get(3));
+					m.instructions.insert(beforeTarget, addBefore);
+					m.instructions.insert(afterTarget, addAfter);
+					m.localVariables.clear();
+					m.localVariables.add(new LocalVariableNode("itemStack", "Lyd;", null, lbls.get(0), lbls.get(3), 0));
+					m.maxStack=3;
 				}else{
 					addBefore.add(new VarInsnNode(Opcodes.ALOAD,0));
 					addBefore.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/item/ItemStack", "itemID", "I"));
@@ -219,8 +248,6 @@ mv.visitEnd();
 					m.localVariables.clear();
 					m.localVariables.add(new LocalVariableNode("itemStack", "Lnet/minecraft/item/ItemStack;", null, lbls.get(0), lbls.get(3), 0));
 					m.maxStack=3;
-					//					new MaxsNode(3, 1);
-
 				}
 //				this.logMethodNodes(m);
 				break;
@@ -387,28 +414,23 @@ mv.visitEnd();
 				//							m.instructions.remove(n);
 				//						}
 				m.instructions.remove(m.instructions.get(targetInsn_index+2));
-				if (needDeobf){
-				}else{
-					addBefore.add(new VarInsnNode(Opcodes.ILOAD, 0));
-					addBefore.add(new InsnNode(Opcodes.ICONST_1));
-					lbls.add(new LabelNode());
-					addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE,lbls.get(1)));
-					addBefore.add(new InsnNode(Opcodes.ICONST_1));
-					lbls.add(new LabelNode());
-					addBefore.add(new JumpInsnNode(Opcodes.GOTO, lbls.get(2)));
-					addBefore.add(lbls.get(1));
-					addBefore.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 4, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER}));
-					addAfter.add(lbls.get(2));
-					addAfter.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 5, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER, Opcodes.INTEGER}));
-					lbls.add(new LabelNode());
-					m.instructions.insert(targetnode, addAfter);
-					m.instructions.insertBefore(targetnode, addBefore);
-					m.localVariables.clear();
-					m.localVariables.add(new LocalVariableNode("overlay", "I", null, lbls.get(0), lbls.get(3), 0));
-					m.maxStack=6;
-					//							new MaxsNode(3, 1);
-
-				}
+				addBefore.add(new VarInsnNode(Opcodes.ILOAD, 0));
+				addBefore.add(new InsnNode(Opcodes.ICONST_1));
+				lbls.add(new LabelNode());
+				addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE,lbls.get(1)));
+				addBefore.add(new InsnNode(Opcodes.ICONST_1));
+				lbls.add(new LabelNode());
+				addBefore.add(new JumpInsnNode(Opcodes.GOTO, lbls.get(2)));
+				addBefore.add(lbls.get(1));
+				addBefore.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 4, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER}));
+				addAfter.add(lbls.get(2));
+				addAfter.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 5, new Object[] {lbls.get(0), lbls.get(0), Opcodes.INTEGER, Opcodes.INTEGER, Opcodes.INTEGER}));
+				lbls.add(new LabelNode());
+				m.instructions.insert(targetnode, addAfter);
+				m.instructions.insertBefore(targetnode, addBefore);
+				m.localVariables.clear();
+				m.localVariables.add(new LocalVariableNode("overlay", "I", null, lbls.get(0), lbls.get(3), 0));
+				m.maxStack=6;
 				this.logMethodNodes(m);
 				break;
 			}
