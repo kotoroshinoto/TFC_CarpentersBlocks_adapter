@@ -7,13 +7,14 @@ import java.util.logging.Level;
 
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
+
 import tfc_carpentersblocks_adapter.mod.util.ModLogger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.world.World;
 
-import org.objectweb.asm.commons.Remapper;
+//import org.objectweb.asm.commons.Remapper;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
@@ -22,29 +23,27 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 
 	@Override
 	public byte[] transform(String arg0, String arg1, byte[] arg2) {
+//		runtimeDeobf = (Boolean) data.get("runtimeDeobfuscationEnabled");
 		if(arg0.equals("carpentersblocks.block.BlockBase")){
-			ModLogger.log(Level.INFO, "identified Blockbase class for modification ");
-			return patchBlockBase(arg0,arg2);
+			boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+			ModLogger.log(Level.INFO, "identified Blockbase class for modification deobfuscation:"+needDeobf);
+			return patchBlockBase(arg0,arg2,needDeobf);
 		}
 		if (arg0.equals("carpentersblocks.util.BlockProperties")){
-			ModLogger.log(Level.INFO, "identified BlockProperties class for modification ");
-			return patchBlockProperties(arg0,arg2);
+			boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+			ModLogger.log(Level.INFO, "identified BlockProperties class for modification deobfuscation:"+needDeobf);
+			return patchBlockProperties(arg0,arg2,needDeobf);
 		}
 		if(arg0.equals("carpentersblocks.util.handler.OverlayHandler")){
-			ModLogger.log(Level.INFO, "identified OverlayHandler class for modification ");
-			return patchOverlayHandler(arg0,arg2);
+			boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+			ModLogger.log(Level.INFO, "identified OverlayHandler class for modification deobfuscation:"+needDeobf);
+			return patchOverlayHandler(arg0,arg2,needDeobf);
 		}
 		return arg2;
 	}
-	private byte[] patchBlockProperties(String name, byte[] bytes){
+	private byte[] patchBlockProperties(String name, byte[] bytes, boolean needDeobf){
 		String targetMethodName= "ejectEntity";
-		String targetMethodDesc;
-		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		if(needDeobf){
-			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lyd;)V";
-		} else {
-			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
-		}
+		String targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
@@ -114,15 +113,9 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 
 		//		return bytes;
 	}
-	private byte[] patchOverlayHandler(String name, byte[] bytes) {
+	private byte[] patchOverlayHandler(String name, byte[] bytes, boolean needDeobf) {
 		String targetMethodName= "getItemStack";
-		String targetMethodDesc;
-		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		if(needDeobf){
-			targetMethodDesc="(I)Lyd;";
-		} else {
-			targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
-		}
+		String targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
@@ -189,14 +182,11 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		classNode.accept(writer);
 		return writer.toByteArray();
 	}
-	private byte[] patchBlockBase(String name, byte[] bytes) {
+	private byte[] patchBlockBase(String name, byte[] bytes, boolean needDeobf) {
 		String targetMethodName= "onBlockActivated";
-		String targetMethodDesc;
-		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		if(needDeobf){
-			targetMethodDesc="(Labv;IIILue;IFFF)Z";
-		} else {
-			targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		String targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		if (needDeobf){
+			targetMethodName="func_71903_a";
 		}
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
@@ -241,7 +231,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 					target3=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isOverlay","(Lnet/minecraft/item/ItemStack;)Z");
 				}
 				int[] targetsFound=new int[]{0,0,0,0};
-				logMethodNodes(m);
+//				logMethodNodes(m);
 				ModLogger.log(Level.INFO, "target1: Type("+target1.getType()+") Opcode("+target1.getOpcode()+") "+target1.owner+" "+target1.name+" "+target1.desc);
 				ModLogger.log(Level.INFO, "target2: Type("+target2.getType()+") Opcode("+target2.getOpcode()+") "+target2.owner+" "+target2.name+" "+target2.desc);
 				ModLogger.log(Level.INFO, "target3: Type("+target3.getType()+") Opcode("+target3.getOpcode()+") "+target3.owner+" "+target3.name+" "+target3.desc);
@@ -263,6 +253,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
+						this.logNode(currentNode, "After Editing: ");
 					} else if(targetsFound[1] != 2 && this.CompareNodes(currentNode, target2)){
 						ModLogger.log(Level.INFO, "target2 bytecode instruction found");
 						targetsFound[1]=targetsFound[1]+1;
@@ -273,6 +264,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lcarpentersblocks/tileentity/TECarpentersBlock;ILnet/minecraft/item/ItemStack;)Z";
 						}
+						this.logNode(currentNode, "After Editing: ");
 					} else if(targetsFound[2] != 1 && this.CompareNodes(currentNode, target3)){
 						ModLogger.log(Level.INFO, "target3 bytecode instruction found");
 						targetsFound[2]=targetsFound[2]+1;
@@ -283,6 +275,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
+						this.logNode(currentNode, "After Editing: ");
 					} else if(targetsFound[3] != 1 && this.CompareNodes(currentNode, target4)){
 						ModLogger.log(Level.INFO, "target4 bytecode instruction found");
 						targetsFound[3]=targetsFound[3]+1;
@@ -298,7 +291,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						} else {
 							mnode.desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
-						
+						this.logNode(mnode, "newly added Node: ");
 					}
 					//if found all targets, stop looking
 					if(targetsFound[0]==1 && targetsFound[1]==2 && targetsFound[2]==1 && targetsFound[3]==1){
@@ -306,7 +299,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 					}
 				}
 				
-				logMethodNodes(m);
+//				logMethodNodes(m);
 				break;
 			}
 		}
@@ -372,26 +365,55 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 			return obf;
 		}
 	}
-	private void logNode(AbstractInsnNode a) {
-
+	private void logNodeDeobf(AbstractInsnNode a, String message) {
+		String msg="";
+		if (message!=null){
+			msg=message;
+		}
 		switch(a.getType()){
 		case AbstractInsnNode.FIELD_INSN:{
 			FieldInsnNode n=(FieldInsnNode)deobf(a);
-			ModLogger.log(Level.INFO, "Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
 			break;
 			}
 		case AbstractInsnNode.METHOD_INSN:{
 			MethodInsnNode n=(MethodInsnNode)deobf(a);
-			ModLogger.log(Level.INFO, "Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
 			break;
 			}
 		case AbstractInsnNode.TYPE_INSN:{
 			TypeInsnNode n=(TypeInsnNode)deobf(a);
-			ModLogger.log(Level.INFO, "Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.desc);
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.desc);
 			break;
 			}
 		default:
-			ModLogger.log(Level.INFO, "Node Type("+a.getType()+") Opcode("+a.getOpcode()+") "+a.toString());
+			ModLogger.log(Level.INFO, msg+"Node Type("+a.getType()+") Opcode("+a.getOpcode()+") "+a.toString());
+			break;
+		}
+	}
+	private void logNode(AbstractInsnNode a, String message) {
+		String msg="";
+		if (message!=null){
+			msg=message;
+		}
+		switch(a.getType()){
+		case AbstractInsnNode.FIELD_INSN:{
+			FieldInsnNode n=(FieldInsnNode)a;
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
+			break;
+			}
+		case AbstractInsnNode.METHOD_INSN:{
+			MethodInsnNode n=(MethodInsnNode)a;
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.owner+" "+n.name+" "+n.desc);
+			break;
+			}
+		case AbstractInsnNode.TYPE_INSN:{
+			TypeInsnNode n=(TypeInsnNode)a;
+			ModLogger.log(Level.INFO, msg+"Node Type("+n.getType()+") Opcode("+n.getOpcode()+") "+n.desc);
+			break;
+			}
+		default:
+			ModLogger.log(Level.INFO, msg+"Node Type("+a.getType()+") Opcode("+a.getOpcode()+") "+a.toString());
 			break;
 		}
 	}
