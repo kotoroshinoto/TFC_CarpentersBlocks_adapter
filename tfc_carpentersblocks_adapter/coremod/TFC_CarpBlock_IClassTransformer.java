@@ -30,19 +30,25 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		}
 		if (arg0.equals("carpentersblocks.util.BlockProperties")){
 			ModLogger.log(Level.INFO, "identified BlockProperties class for modification ");
-//			return patchBlockProperties(arg0,arg2);
+			return patchBlockProperties(arg0,arg2);
 		}
 		if(arg0.equals("carpentersblocks.util.handler.OverlayHandler")){
 			ModLogger.log(Level.INFO, "identified OverlayHandler class for modification ");
-//			return patchOverlayHandler(arg0,arg2);
+			return patchOverlayHandler(arg0,arg2);
 		}
 		return arg2;
 	}
 	private byte[] patchBlockProperties(String name, byte[] bytes){
 		// TODO Auto-generated method stub
-		String targetMethodName= "isOverlay";
-		String targetMethodDesc="(Lnet/minecraft/item/ItemStack;)Z";
+		String targetMethodName= "ejectEntity";
+		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//TODO deobf
+		if(needDeobf){
+			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
+		} else {
+			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
+		}
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
@@ -75,6 +81,35 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
 				
 				int index = -1;
+				MethodInsnNode target;
+				if(needDeobf){
+					//TODO OBF NAMES
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/entity/item/EntityItem","<init>","(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V");
+				}else{
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/entity/item/EntityItem","<init>","(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V");
+				}
+				logMethodNodes(m);
+				ModLogger.log(Level.INFO, "target: Type("+target.getType()+") Opcode("+target.getOpcode()+") "+target.owner+" "+target.name+" "+target.desc);
+				while (iter.hasNext())
+				{
+					index++;
+					currentNode = iter.next();
+//					this.logNode(currentNode);
+					
+					if (this.CompareNodes(currentNode, target))
+					{
+						ModLogger.log(Level.INFO, "target1 bytecode instruction found");
+						MethodInsnNode n;
+						if(needDeobf){
+							//TODO obfuscated desc
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterCoverBlock","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
+						} else {
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterCoverBlock","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
+						}
+						m.instructions.insertBefore(currentNode, n);
+						break;
+					}
+				}
 //				this.logMethodNodes(m);
 				break;
 			}
@@ -88,8 +123,14 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 	private byte[] patchOverlayHandler(String name, byte[] bytes) {
 		// TODO Auto-generated method stub
 		String targetMethodName= "getItemStack";
-		String targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
+		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//TODO deobf
+		if(needDeobf){
+			targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
+		} else {
+			targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
+		}
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
@@ -122,73 +163,35 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
 
 				int index = -1;
-				int targetInstructionType=AbstractInsnNode.METHOD_INSN;
-				int targetOpcodeType=Opcodes.INVOKESPECIAL;
-				String targetOwner="net/minecraft/item/ItemStack";
-				String targetName="<init>";
-				String targetDesc="(III)V";
-				ModLogger.log(Level.INFO, "looking for: Type("+AbstractInsnNode.FIELD_INSN+") Opcode("+Opcodes.GETSTATIC+")"+targetOwner+" "+targetName+" "+targetDesc);
+				MethodInsnNode target;
+				if(needDeobf){
+					//TODO OBF NAMES
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/item/ItemStack","<init>","(III)V");
+				}else{
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/item/ItemStack","<init>","(III)V");
+				}
+				logMethodNodes(m);
+				ModLogger.log(Level.INFO, "target: Type("+target.getType()+") Opcode("+target.getOpcode()+") "+target.owner+" "+target.name+" "+target.desc);
 				while (iter.hasNext())
 				{
 					index++;
 					currentNode = iter.next();
-					ModLogger.log(Level.INFO, "Node instruction type: "+currentNode.getType()+" opcode: "+currentNode.getOpcode());
-					if (currentNode.getType() == targetInstructionType && currentNode.getOpcode() == targetOpcodeType)
+//					this.logNode(currentNode);
+					
+					if (this.CompareNodes(currentNode, target))
 					{
-						MethodInsnNode fieldnode=(MethodInsnNode)currentNode;
-						String nodeOwner;
-						String nodeName;
-						String nodeDesc;
-						if (needDeobf){
-							nodeOwner=FMLDeobfuscatingRemapper.INSTANCE.mapType(fieldnode.owner);
-							nodeName=FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(fieldnode.owner, fieldnode.name, fieldnode.desc);
-							nodeDesc=FMLDeobfuscatingRemapper.INSTANCE.mapDesc(fieldnode.desc);
+						ModLogger.log(Level.INFO, "target1 bytecode instruction found");
+						MethodInsnNode n;
+						if(needDeobf){
+							//TODO obfuscated desc
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterOverlayItemStack","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
 						} else {
-							nodeOwner=fieldnode.owner;
-							nodeName=fieldnode.name;
-							nodeDesc=fieldnode.desc;
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterOverlayItemStack","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
 						}
-
-						ModLogger.log(Level.INFO, "checking: "+nodeOwner+" "+nodeName+" "+nodeDesc);
-						if(nodeOwner.equals(targetOwner) && nodeName.equals(targetName) && nodeDesc.equals(targetDesc) ){
-							ModLogger.log(Level.INFO, "target bytecode instruction found");
-							targetInsn_index=index;
-							break;
-						}
+						m.instructions.insert(currentNode, n);
+						break;
 					}
 				}
-				LabelNode l0,l1,l2,l3;
-				l0=m.localVariables.get(0).start;
-				l3=m.localVariables.get(0).end;
-				//						ArrayList<AbstractInsnNode> removeThese=new ArrayList<AbstractInsnNode>();
-				InsnList addBefore = new InsnList();
-				InsnList addAfter = new InsnList();
-				AbstractInsnNode targetnode=m.instructions.get(targetInsn_index-1);
-				//						removeThese.add(m.instructions.get(targetInsn_index+6));
-				//						removeThese.add(m.instructions.get(targetInsn_index+7));
-				//						removeThese.add(m.instructions.get(targetInsn_index+8));
-				//						for(AbstractInsnNode n:removeThese){
-				//							m.instructions.remove(n);
-				//						}
-				m.instructions.remove(m.instructions.get(targetInsn_index+2));
-				addBefore.add(new VarInsnNode(Opcodes.ILOAD, 0));
-				addBefore.add(new InsnNode(Opcodes.ICONST_1));
-				l1=new LabelNode(new Label());
-				addBefore.add(new JumpInsnNode(Opcodes.IF_ICMPNE,l1));
-				addBefore.add(new InsnNode(Opcodes.ICONST_1));
-				l2=new LabelNode(new Label());
-				addBefore.add(new JumpInsnNode(Opcodes.GOTO, l2));
-				addBefore.add(l1);
-				addBefore.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 4, new Object[] {l0, l0, Opcodes.INTEGER, Opcodes.INTEGER}));
-				addAfter.add(l2);
-				addAfter.add(new FrameNode(Opcodes.F_FULL, 1, new Object[] {Opcodes.INTEGER}, 5, new Object[] {l0, l0, Opcodes.INTEGER, Opcodes.INTEGER, Opcodes.INTEGER}));
-				l3=new LabelNode(new Label());
-				m.instructions.insert(targetnode, addAfter);
-				m.instructions.insertBefore(targetnode, addBefore);
-//				m.localVariables.clear();
-//				m.localVariables.add(new LocalVariableNode("overlay", "I", null, l0, l3, 0));
-				m.maxStack=6;
-//				this.logMethodNodes(m);
 				break;
 			}
 		}
@@ -199,8 +202,14 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 	private byte[] patchBlockBase(String name, byte[] bytes) {
 		// TODO Auto-generated method stub
 		String targetMethodName= "onBlockActivated";
-		String targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//TODO deobf
+		if(needDeobf){
+			targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		} else {
+			targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+		}
 		//set up ASM class manipulation stuff. Consult the ASM docs for details
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);

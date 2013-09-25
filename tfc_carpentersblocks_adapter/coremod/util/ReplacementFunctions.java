@@ -28,6 +28,7 @@ public class ReplacementFunctions {
 //		ModLogger.log(Level.INFO, "Normal Overlay Check");
 		return carpentersblocks.util.BlockProperties.isOverlay(itemStack);		
 	}
+	//OverlayHandler.getItemStack
 	public static ItemStack FilterOverlayItemStack(ItemStack itemStack){
 		ModLogger.log(Level.INFO, "checking which item to give back when returning: "+itemStack.itemID+" from an overlay");
 		//get it back
@@ -41,6 +42,9 @@ public class ReplacementFunctions {
 	public static boolean isCover(ItemStack itemStack){
 		ModLogger.log(Level.INFO, "checking if ID: "+itemStack.itemID+" is a cover");
 		//isvalid
+		if(itemStack.itemID == Block.cloth.blockID){
+			return false;
+		}
 		if(itemStack.itemID == Block.carpet.blockID){
 			return carpentersblocks.util.BlockProperties.isCover(new ItemStack(Block.cloth,1,itemStack.getItemDamage()));
 		}else{
@@ -57,12 +61,12 @@ public class ReplacementFunctions {
 			return carpentersblocks.util.BlockProperties.setCover(block,side,itemStack);
 		}
 	}
-	
+	//BlockProperties ejectEntity
 	public static ItemStack FilterCoverBlock(ItemStack itemStack){
 		ModLogger.log(Level.INFO, "checking which item to give back when returning: "+itemStack.itemID+" from a cover");
 		//get it back
 		if(itemStack.itemID == Block.cloth.blockID){
-			return new ItemStack(Block.carpet);
+			return new ItemStack(Block.carpet,itemStack.stackSize,itemStack.getItemDamage());
 		}else{
 			return itemStack;
 		}
