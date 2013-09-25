@@ -28,7 +28,7 @@ public class TFC_CarpentersBlocks_adapter extends DummyModContainer{
 		meta.modId = Reference.ModID;
 		meta.name = Reference.ModName;
 		meta.version = Reference.ModVersion;
-		meta.credits = "By KotoroShinoto";
+		meta.credits = Reference.Credits;
 		meta.authorList = Arrays.asList("KotoroShinoto");
 		meta.description = Reference.ModDescription;
 		meta.url = Reference.ModURL;

@@ -12,7 +12,7 @@ cp -r $SOURCEDIR/tfc_carpentersblocks_adapter .
 cd $BUILD_FORGE/mcp
 ./recompile.sh
 ./reobfuscate.sh
-cd deobf
+cd reobf
 cp -r $SOURCEDIR/META-INF .
 cp -r $SOURCEDIR/mcmod.info .
 JARFILE="TFC[$TFC_V]_carpentersblocks[$CB_V]_adapter_[$MOD_V]_MC[$MC_V].jar"

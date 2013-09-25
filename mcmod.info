@@ -3,7 +3,7 @@
   "modid" : "TFC_CarpentersBlocks_adapter",
   "name" : "Carpenter's Blocks adapter for TFC",
   "description": "Makes adjustments so Carpenter's Blocks works sanely with TFC",
-  "version": "0.0.3 Alpha",
+  "version": "0.1.0 Beta",
   "mcversion": "1.6.2",
   "url": "https://github.com/kotoroshinoto/TFC_CarpentersBlocks_adapter",
   "updateUrl": "",

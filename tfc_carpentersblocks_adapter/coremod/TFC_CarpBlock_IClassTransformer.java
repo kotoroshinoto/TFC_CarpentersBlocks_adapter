@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
-import scala.tools.asm.*;
-import scala.tools.asm.tree.*;
+import org.objectweb.asm.*;
+import org.objectweb.asm.tree.*;
 import tfc_carpentersblocks_adapter.mod.util.ModLogger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,8 +22,6 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 
 	@Override
 	public byte[] transform(String arg0, String arg1, byte[] arg2) {
-		// TODO Auto-generated method stub
-
 		if(arg0.equals("carpentersblocks.block.BlockBase")){
 			ModLogger.log(Level.INFO, "identified Blockbase class for modification ");
 			return patchBlockBase(arg0,arg2);
@@ -39,13 +37,11 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		return arg2;
 	}
 	private byte[] patchBlockProperties(String name, byte[] bytes){
-		// TODO Auto-generated method stub
 		String targetMethodName= "ejectEntity";
 		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		//TODO deobf
 		if(needDeobf){
-			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
+			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lyd;)V";
 		} else {
 			targetMethodDesc="(Lcarpentersblocks/tileentity/TECarpentersBlock;Lnet/minecraft/item/ItemStack;)V";
 		}
@@ -83,8 +79,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 				int index = -1;
 				MethodInsnNode target;
 				if(needDeobf){
-					//TODO OBF NAMES
-					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/entity/item/EntityItem","<init>","(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V");
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"sr","<init>","(Labv;DDDLyd;)V");
 				}else{
 					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/entity/item/EntityItem","<init>","(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V");
 				}
@@ -101,8 +96,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						ModLogger.log(Level.INFO, "target1 bytecode instruction found");
 						MethodInsnNode n;
 						if(needDeobf){
-							//TODO obfuscated desc
-							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterCoverBlock","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterCoverBlock","(Lyd;)Lyd;");
 						} else {
 							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterCoverBlock","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
 						}
@@ -121,13 +115,11 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		//		return bytes;
 	}
 	private byte[] patchOverlayHandler(String name, byte[] bytes) {
-		// TODO Auto-generated method stub
 		String targetMethodName= "getItemStack";
 		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		//TODO deobf
 		if(needDeobf){
-			targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
+			targetMethodDesc="(I)Lyd;";
 		} else {
 			targetMethodDesc="(I)Lnet/minecraft/item/ItemStack;";
 		}
@@ -165,8 +157,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 				int index = -1;
 				MethodInsnNode target;
 				if(needDeobf){
-					//TODO OBF NAMES
-					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/item/ItemStack","<init>","(III)V");
+					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"yd","<init>","(III)V");
 				}else{
 					target=new MethodInsnNode (Opcodes.INVOKESPECIAL,"net/minecraft/item/ItemStack","<init>","(III)V");
 				}
@@ -183,8 +174,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						ModLogger.log(Level.INFO, "target1 bytecode instruction found");
 						MethodInsnNode n;
 						if(needDeobf){
-							//TODO obfuscated desc
-							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterOverlayItemStack","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
+							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterOverlayItemStack","(Lyd;)Lyd;");
 						} else {
 							 n= new MethodInsnNode(Opcodes.INVOKESTATIC,"tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions","FilterOverlayItemStack","(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;");
 						}
@@ -200,13 +190,11 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 		return writer.toByteArray();
 	}
 	private byte[] patchBlockBase(String name, byte[] bytes) {
-		// TODO Auto-generated method stub
 		String targetMethodName= "onBlockActivated";
 		String targetMethodDesc;
 		boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		//TODO deobf
 		if(needDeobf){
-			targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
+			targetMethodDesc="(Labv;IIILue;IFFF)Z";
 		} else {
 			targetMethodDesc="(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z";
 		}
@@ -242,18 +230,15 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
 				int index = -1;
 				MethodInsnNode target1,target2,target3;
-				FieldInsnNode target4;
+				FieldInsnNode target4=new FieldInsnNode(Opcodes.GETSTATIC,"carpentersblocks/util/handler/FeatureHandler","enableDyeColors","Z");;
 				if(needDeobf){
-					//TODO OBF NAMES
-					target1=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isCover","(Lnet/minecraft/item/ItemStack;)Z");
-					target2=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","setCover","(Lcarpentersblocks/tileentity/TECarpentersBlock;ILnet/minecraft/item/ItemStack;)Z");
-					target3=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isOverlay","(Lnet/minecraft/item/ItemStack;)Z");
-					target4=new FieldInsnNode(Opcodes.GETSTATIC,"carpentersblocks/util/handler/FeatureHandler","enableDyeColors","Z");	
+					target1=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isCover","(Lyd;)Z");
+					target2=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","setCover","(Lcarpentersblocks/tileentity/TECarpentersBlock;ILyd;)Z");
+					target3=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isOverlay","(Lyd;)Z");
 				}else{
 					target1=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isCover","(Lnet/minecraft/item/ItemStack;)Z");
 					target2=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","setCover","(Lcarpentersblocks/tileentity/TECarpentersBlock;ILnet/minecraft/item/ItemStack;)Z");
 					target3=new MethodInsnNode (Opcodes.INVOKESTATIC,"carpentersblocks/util/BlockProperties","isOverlay","(Lnet/minecraft/item/ItemStack;)Z");
-					target4=new FieldInsnNode(Opcodes.GETSTATIC,"carpentersblocks/util/handler/FeatureHandler","enableDyeColors","Z");
 				}
 				int[] targetsFound=new int[]{0,0,0,0};
 				logMethodNodes(m);
@@ -274,8 +259,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						((MethodInsnNode)currentNode).owner="tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions";
 						((MethodInsnNode)currentNode).name="isCover";
 						if(needDeobf){
-							//TODO obfuscated desc
-							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
+							((MethodInsnNode)currentNode).desc="(Lyd;)Z";
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
@@ -285,8 +269,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						((MethodInsnNode)currentNode).owner="tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions";
 						((MethodInsnNode)currentNode).name="setCover";
 						if(needDeobf){
-							//TODO obfuscated desc
-							((MethodInsnNode)currentNode).desc="(Lcarpentersblocks/tileentity/TECarpentersBlock;ILnet/minecraft/item/ItemStack;)Z";
+							((MethodInsnNode)currentNode).desc="(Lcarpentersblocks/tileentity/TECarpentersBlock;ILyd;)Z";
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lcarpentersblocks/tileentity/TECarpentersBlock;ILnet/minecraft/item/ItemStack;)Z";
 						}
@@ -296,8 +279,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						((MethodInsnNode)currentNode).owner="tfc_carpentersblocks_adapter/coremod/util/ReplacementFunctions";
 						((MethodInsnNode)currentNode).name="isOverlay";
 						if(needDeobf){
-							//TODO obfuscated desc
-							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
+							((MethodInsnNode)currentNode).desc="(Lyd;)Z";
 						} else {
 							((MethodInsnNode)currentNode).desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
@@ -312,8 +294,7 @@ public class TFC_CarpBlock_IClassTransformer implements IClassTransformer {
 						jnode.setOpcode(Opcodes.IFEQ);
 						m.instructions.remove(m.instructions.get(index+4));
 						if(needDeobf){
-							//TODO obf name
-							mnode.desc="(Lnet/minecraft/item/ItemStack;)Z";
+							mnode.desc="(Lyd;)Z";
 						} else {
 							mnode.desc="(Lnet/minecraft/item/ItemStack;)Z";
 						}
