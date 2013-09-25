@@ -5,7 +5,8 @@ import java.util.logging.Level;
 
 import tfc_carpentersblocks_adapter.mod.util.ModLogger;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+@TransformerExclusions({"tfc_carpentersblocks_adapter.coremod"})
 public class TFC_CarpBlock_IFMLLoadingPlugin implements IFMLLoadingPlugin {
 	public static boolean runtimeDeobf;
 	@Override
