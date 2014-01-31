@@ -74,19 +74,19 @@ public class BlockHandler {
 		//Carpenter Block
 		Object[] recipe;
 		recipe=new Object[]{"XXX", "XYX", "XXX", 'X', new ItemStack(TFCplank,1,32767), 'Y', "plankWood"};
-		changeBlockRecipe("blockCarpentersBlock",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBlock,recipeQuantityBlock,RecipeType.ShapedOre);
+		changeBlockRecipe("blockCarpentersBlock",recipe,carpentersblocks.util.registry.BlockRegistry.recipeQuantityBlock,recipeQuantityBlock,RecipeType.ShapedOre);
 		//Slope
 		recipe=new Object[]{"  X", " XY", "XYY", 'X', new ItemStack(TFCplank,1,32767), 'Y', "plankWood"};
-		changeBlockRecipe("blockCarpentersSlope",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantitySlope,recipeQuantitySlope,RecipeType.ShapedOre);
+		changeBlockRecipe("blockCarpentersSlope",recipe,carpentersblocks.util.registry.BlockRegistry.recipeQuantitySlope,recipeQuantitySlope,RecipeType.ShapedOre);
 		//Stairs
 		recipe=new Object[]{"  X", " XX", "XXX", 'X', blockCarpentersBlock};
-		changeBlockRecipe("blockCarpentersStairs",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityStairs,recipeQuantityStairs,RecipeType.ObjArray);
+		changeBlockRecipe("blockCarpentersStairs",recipe,carpentersblocks.util.registry.BlockRegistry.recipeQuantityStairs,recipeQuantityStairs,RecipeType.ObjArray);
 		//Barrier (fence)
 		recipe=new Object[]{"XYX", "XYX", 'X', TFCvertSupport, 'Y',TFChorizSupport};
-		changeBlockRecipe("blockCarpentersBarrier",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityBarrier,recipeQuantityBarrier,RecipeType.ShapedOre);
+		changeBlockRecipe("blockCarpentersBarrier",recipe,carpentersblocks.util.registry.BlockRegistry.recipeQuantityBarrier,recipeQuantityBarrier,RecipeType.ShapedOre);
 		//Gate
 		recipe=new Object[]{"XYX", "XYX", 'X', TFCvertSupport, 'Y', blockCarpentersBlock};
-		changeBlockRecipe("blockCarpentersGate",recipe,carpentersblocks.util.handler.BlockHandler.recipeQuantityGate,recipeQuantityGate,RecipeType.ShapedOre);
+		changeBlockRecipe("blockCarpentersGate",recipe,carpentersblocks.util.registry.BlockRegistry.recipeQuantityGate,recipeQuantityGate,RecipeType.ShapedOre);
 	    
 
 	    //--Don't Need Changes (at least not yet)
