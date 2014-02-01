@@ -2,7 +2,7 @@ package tfc_carpentersblocks_adapter.coremod.util;
 
 import java.util.logging.Level;
 
-import carpentersblocks.tileentity.TECarpentersBlock;
+import carpentersblocks.tileentity.TEBase;
 import carpentersblocks.util.BlockProperties;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -52,13 +52,13 @@ public class ReplacementFunctions {
 		}
 	}
 	
-	public static boolean setCover(TECarpentersBlock block, int side, ItemStack itemStack){
+	public static boolean setCover(TEBase block, int side, int metadata, ItemStack itemStack){
 		ModLogger.log(Level.INFO, "setting ID: "+itemStack.itemID+" as a cover");
 		//put it in
 		if(itemStack.itemID == Block.carpet.blockID){
-			return carpentersblocks.util.BlockProperties.setCover(block,side,new ItemStack(Block.cloth,1,itemStack.getItemDamage()));
+			return carpentersblocks.util.BlockProperties.setCover(block,side,metadata, new ItemStack(Block.cloth,1,itemStack.getItemDamage()));
 		}else{
-			return carpentersblocks.util.BlockProperties.setCover(block,side,itemStack);
+			return carpentersblocks.util.BlockProperties.setCover(block,side,metadata,itemStack);
 		}
 	}
 	//BlockProperties ejectEntity
