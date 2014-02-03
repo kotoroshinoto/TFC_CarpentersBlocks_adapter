@@ -65,8 +65,9 @@ public class TFC_CarpentersBlocks_adapter extends DummyModContainer{
 //		Util.listBlocks();
 		ModLogger.log(Level.INFO, "Initializing Carpenter's Blocks adapter for TFC");
 //		FeatureHandler.registerTileEntities();
-		tfc_carpentersblocks_adapter.mod.util.BlockHandler.changeBlockRecipes();
-		tfc_carpentersblocks_adapter.mod.util.ItemHandler.changeItemRecipes();
-		tfc_carpentersblocks_adapter.mod.util.ItemHandler.registerOverlayItems();
+		tfc_carpentersblocks_adapter.mod.util.TFC_ItemConvenience.Initialize();
+		tfc_carpentersblocks_adapter.mod.recipe.RecipeHandler.changeBlockRecipes();
+		tfc_carpentersblocks_adapter.mod.recipe.RecipeHandler.changeItemRecipes();
+		tfc_carpentersblocks_adapter.mod.recipe.RecipeHandler.registerOverlayItems();
 	}
 }
